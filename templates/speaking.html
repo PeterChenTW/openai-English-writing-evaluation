@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <title>Chatbot</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        #header-bar {
+            background-color: #e2a3b7;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+
+            align-items: center;
+            /* 使內容垂直居中 */
+
+        }
+
+        h1 {
+            margin: 0;
+            color: #333;
+        }
+
+        #bot-role {
+            background-color: #e6e6e6;
+            border-radius: 5px;
+            padding: 5px;
+        }
+
+        #chat-box {
+            border: 1px solid #ccc;
+            height: 300px;
+            padding: 10px;
+            overflow-y: scroll;
+            background-color: #e6e6e6;
+            border-radius: 10px;
+            margin-top: 20px;
+            flex-grow: 1;
+            overflow: auto;
+            margin-bottom: 70px;
+        }
+
+        .message {
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 15px;
+            display: inline-block;
+        }
+
+        .user-message {
+            background-color: #97c1a9;
+            color: white;
+            float: right;
+        }
+
+        .bot-message {
+            background-color: #e2a3b7;
+            color: white;
+            float: left;
+        }
+
+        #user-input {
+            width: 70%;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 10px;
+        }
+
+        .clear {
+            clear: both;
+        }
+
+        #input-container {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f0f0;
+            padding: 10px;
+        }
+
+
+        #user-input {
+            width: 60%;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        button {
+            background-color: #97c1a9;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: 5px;
+        }
+
+        #record-button {
+            background-color: #e6a3b7;
+        }
+
+        .blurred {
+            filter: blur(5px);
+        }
+
+        #powered-by {
+            position: fixed;
+            right: 10px;
+            bottom: 10px;
+            color: #999;
+            font-size: 12px;
+        }
+        #chat-history-icon {
+    position: fixed;
+    left: 10px;
+    bottom: 10px;
+    color: #999;
+    font-size: 24px;
+    text-decoration: none;
+    padding: 5px;
+    border-radius: 5px;
+    background-color: #f0f0f0;
+}
+
+#chat-history-icon:hover {
+    color: #333;
+    background-color: #e6e6e6;
+}
+
+    </style>
+</head>
+
+<body>
+    <div id="header-bar">
+        <h1>Simple Chatbot</h1>
+        <div id="blur-container">
+            <label>
+                <input type="checkbox" id="blur-chat" onchange="toggleBlur()"> Blur Chat
+            </label>
+        </div>
+        <select id="bot-role" onchange="changeRole()">
+            <option value="IETES Speaking Examiner">IETES Speaking Examiner</option>
+            <option value="English_teacher">English Teacher</option>
+        </select>
+    </div>
+    <div id="chat-box"></div>
+    <div id="input-container">
+        <textarea id="user-input" placeholder="Type your message..."></textarea>
+        <button onclick="sendMessage()">Send</button>
+        <button id="record-button" onclick="startRecording()">Record</button>
+    </div>
+    <a id="chat-history-icon" href="/chat_history" title="Chat History">
+        <i class="fa fa-history"></i>
+    </a>
+    
+    <script>
+        function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                var r = (Math.random() * 16) | 0,
+                    v = c === 'x' ? r : (r & 0x3) | 0x8;
+                return v.toString(16);
+            });
+        }
+
+        var chat_id = generateUUID();
+        var currentMessageCount = 0;
+
+        function addMessage(who, message) {
+            var chatBox = document.getElementById('chat-box');
+            var messageDiv = document.createElement('div');
+            messageDiv.className = who === 'You' ? 'message user-message' : 'message bot-message';
+            messageDiv.innerHTML = message;
+            chatBox.appendChild(messageDiv);
+            var clearDiv = document.createElement('div');
+            clearDiv.className = 'clear';
+            chatBox.appendChild(clearDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function sendMessage() {
+            var userMessage = document.getElementById('user-input').value;
+            addMessage('You', userMessage);
+
+            document.getElementById('user-input').value = '';
+
+            fetch('/ask', {
+                method: 'POST',
+                body: new URLSearchParams(
+                    {
+                        'user_message': message,
+                        'chat_id': chat_id,
+                        'currentMessageCount': currentMessageCount
+                    }
+                ),
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    addMessage('Bot', data.bot_reply);
+                });
+            currentMessageCount++;
+        }
+
+
+        function changeRole() {
+            var selectedRole = document.getElementById('bot-role').value;
+            fetch('/change_role', {
+                method: 'POST',
+                body: new URLSearchParams({ 'role': selectedRole }),
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+                .then(() => {
+                    clearChat();
+                    
+                });
+        }
+
+        function startRecordingIndex() {
+            fetch('/start_record', { method: 'POST' });
+        }
+
+        function stopRecordingIndex() {
+            fetch('/stop_record', { method: 'POST' });
+        }
+
+        var isRecording = false;
+
+        function startRecording() {
+            if (isRecording) return;
+
+            isRecording = true;
+            var recordButton = document.getElementById("record-button");
+            recordButton.innerHTML = 'Recording... <i class="fa fa-spinner fa-spin"></i>';
+            fetch('/record', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(
+                    {
+                        chat_id: chat_id,
+                        currentMessageCount: currentMessageCount
+                    }
+                ),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    recordButton.innerHTML = 'Record';
+
+                    var message = data.message;
+                    addMessage('You', message);
+                    isRecording = false;
+
+                    fetch('/ask', {
+                        method: 'POST',
+                        body: new URLSearchParams(
+                            {
+                                'user_message': message,
+                                'chat_id': chat_id,
+                                'currentMessageCount': currentMessageCount
+                            }
+                        ),
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        }
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            addMessage('Bot', data.bot_reply);
+                        });
+                })
+                .catch(error => {
+
+                    recordButton.innerHTML = 'Record';
+                    console.error("錄音過程中出現錯誤:", error);
+                    isRecording = false;
+                });
+            currentMessageCount++;
+        }
+
+        document.body.onkeydown = function (e) {
+            if (e.keyCode == 32) {
+                e.preventDefault();
+
+                if (!isRecording) {
+                    startRecordingIndex();
+                    startRecording();
+                    isRecording = true;
+                } else {
+                    stopRecordingIndex();
+                    isRecording = false;
+                }
+            }
+        };
+
+        function toggleBlur() {
+            var chatBox = document.getElementById('chat-box');
+            if (document.getElementById('blur-chat').checked) {
+                chatBox.classList.add('blurred');
+            } else {
+                chatBox.classList.remove('blurred');
+            }
+        }
+
+        document.getElementById('user-input').addEventListener('keyup', function (e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                var userMessage = document.getElementById('user-input').value.trim();
+                if (userMessage !== '') {
+                    sendMessage();
+                }
+            }
+        });
+
+
+    </script>
+</body>
+
+</html>

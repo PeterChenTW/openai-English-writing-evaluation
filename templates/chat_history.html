@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat History</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            background-color: #f0f0f0;
+        }
+
+        .play-button {
+            cursor: pointer;
+        }
+
+        .player-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .play-button {
+            cursor: pointer;
+        }
+
+        .progress-bar {
+            flex-grow: 1;
+            height: 5px;
+            background-color: black;
+            position: relative;
+            margin: 0 10px;
+        }
+
+        .progress-bar .progress {
+            position: absolute;
+            height: 100%;
+            background-color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Chat History</h1>
+        <label for="chatSelect">Choose a chat log:</label>
+        <select class="form-control" id="chatSelect">
+            {% for chat_id in chat_history_data %}
+            <option value="{{ chat_id }}" {% if chat_id==selected_chat_id %} selected {% endif %}>
+                {{ chat_id }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <table class="table table-striped mt-4">
+            <thead>
+                <tr>
+                    <th>Index</th>
+                    <th>Role</th>
+                    <th>Message</th>
+                    <th>Example</th>
+                    <th>Play</th>
+                    <th>Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in chat_history %}
+                <tr>
+                    <td>{{ row['index'] }}</td>
+                    <td>{{ row['role'] }}</td>
+                    <td>{{ row['message'] }}</td>
+                    <td>{{ row['improve'] }}</td>
+                    <td>
+                        <audio id="audio_{{ row['index'] }}_{{ row['role'] }}"
+                            src="{{ url_for('static', filename=row['recording_path']) }}" preload="auto"></audio>
+                        <div class="player-container">
+                            <div id="play-btn_{{ row['index'] }}_{{ row['role'] }}" class="play-button" onclick="togglePlay({{ row['index'] }}, '{{ row['role'] }}')">▶️</div>
+
+                        </div>
+                    </td>
+                    <td>{{ row['score'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+
+
+        </table>
+    </div>
+    <div class="home-icon" style="position: fixed; left: 10px; bottom: 10px;">
+        <a href="/" title="Go to Home Page">
+            <i class="fas fa-home fa-2x" style="color: #007bff;"></i>
+        </a>
+    </div>
+    <script>
+        function playAudio(src) {
+            var audioElement = document.getElementById(src);
+            audioElement.play();
+        }
+
+        document.getElementById('chatSelect').addEventListener('change', function () {
+            window.location.href = '/chat_history/' + this.value;
+        });
+
+        window.onload = function () {
+            document.getElementById('chatSelect').addEventListener('change', function () {
+                const selectedChatId = this.value;
+                const currentUrl = window.location.href;
+                const urlChatId = currentUrl.split('/').pop();
+
+                // 檢查當前URL是否已包含選定的chatId
+                if (urlChatId != selectedChatId) {
+                    window.location.href = '/chat_history/' + selectedChatId;
+                }
+            });
+        };
+
+        function togglePlay(index, role) {
+            var audio = document.getElementById('audio_' + index + '_' + role);
+
+            var playBtn = document.getElementById('play-btn_' + index + '_' + role);
+
+            // 添加一個監聽器來檢測音頻是否已播放完畢
+            audio.addEventListener('ended', function () {
+                playBtn.textContent = "▶️";
+            });
+
+            if (audio.paused) {
+                audio.play();
+                playBtn.textContent = "⏸️";
+            } else {
+                audio.pause();
+                playBtn.textContent = "▶️";
+            }
+        }
+
+
+    </script>
+</body>
+
+</html>

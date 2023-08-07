@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-k6RqeWeci5ZR/Lv4MR0sA0FfDOMt23cez/5paNdF+Tm2JsNR4N6x5a5u5F5e6FAP" crossorigin="anonymous">
+    <title>Home Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #ffffff;
+            background: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .content {
+            flex-grow: 1;
+        }
+        .container {
+            text-align: center;
+            padding: 5%;
+        }
+        .btn {
+            font-size: 20px;
+            padding: 10px 20px;
+            margin: 20px;
+            background-color: #556b2f; /* 暗綠色 */
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .btn:hover {
+            transform: scale(1.05); /* 簡單的放大動畫 */
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #222; /* 暗灰色背景 */
+        }
+        @media only screen and (max-width: 600px) {
+            .btn { font-size: 18px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="container">
+            <h1>Unleash Your English Skills</h1>
+            <p>Take the first step towards mastery in Writing and Speaking. Click below to start your journey.</p>
+            <a href="/writing"><button class="btn">Start Writing Training</button></a>
+            <a href="/speaking"><button class="btn">Start Speaking Training</button></a>
+        </div>
+    </div>
+    <div class="footer">
+        <p>Powered by csro7788 and ChatGPT</p>
+    </div>
+</body>
+</html>
