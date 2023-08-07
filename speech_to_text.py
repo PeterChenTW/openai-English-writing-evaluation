@@ -1,7 +1,7 @@
 import speech_recognition as sr
 import openai 
 
-openai.api_key = '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'
+openai.api_key = ''
 recognizer = sr.Recognizer()
 
 def free_model_audio_to_text(recording_file_path):
