@@ -1,27 +1,46 @@
-# Automated English Writing Evaluation using Openai API
+# Automated English Writing Evaluation using Openai API/Huggingface
 
 This is a Python program that automatically evaluates English writing proficiency using the Openai ChatGPT API. You can input topics and articles, and the program will generate an automated evaluation report based on the given topic and article, including suggestions, corrections, examples, and more.
 
-## How to use
+## Workflow
+```mermaid
+graph TD
+A[User launches project]
+B[Selects bot role]
+C[Clicks to record voice]
+D[Backend converts speech to text] 
+E[Passes text to LLM model]
+F[LLM generates reply text]
+G[Text to speech conversion]
+H[Play voice reply]
+I[Loop back for interaction]
 
-1. Install the required Python libraries:
+A --> B
+B --> C
+C --> D
+D --> E
+E --> F
+F --> G 
+G --> H
+H --> I
+I --> C
+```
+
+## Run the program
 
 ```
-pip install openai
+python app.py
 ```
 
-2. Obtain an Openai API key.
 
-3. Download and run the program:
+## Screenshot
 
-```
-python main.py --openai_api_key <your_api_key>
-```
+![Home](screenshot/home.bmp)
 
-4. Follow the program prompts to input the topic and article.
+![speaking_1](screenshot/speaking_1.bmp)
 
-5. The program will automatically generate an HTML report showing the evaluation results.
+![speaking_result](screenshot/speaking_result.bmp)
 
-## Special options
+![writing_1](screenshot/writing_1.bmp)
 
-You can use `--bug_mode True` to enable the `bug mode`, which will display more program information for debugging purposes.
+![writing_result](screenshot/writing_result.bmp)
